@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tema 8 · Dirección General de la Policía — Expediente interactivo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#10151b;
+  --bg2:#0a0d12;
+  --panel:#161d24;
+  --panel2:#1c252d;
+  --head:#1f2930;
+  --line:#2a343e;
+  --accent:#c15c3e;
+  --accent-dim:#6e3324;
+  --accent-text:#2a0d05;
+  --steel:#5f8bb0;
+  --text:#e7ecf0;
+  --muted:#8998a6;
+  --yellow:#e8c468; --yellow-text:#2b1c00;
+  --orange:#e2874f; --orange-text:#341400;
+  --green:#8fbf8f; --green-text:#062b0a;
+  --red:#d97a83;
+  --radius:7px;
+  --fdisplay:'Barlow Condensed',sans-serif;
+  --fbody:'IBM Plex Sans',system-ui,sans-serif;
+  --fmono:'IBM Plex Mono',monospace;
+}
+*{box-sizing:border-box;}
+html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--fbody);}
+body{display:flex;flex-direction:column;}
+
+/* ---------- header ---------- */
+.topbar{
+  flex:0 0 auto;
+  background:var(--bg2);
+  border-bottom:1px solid var(--line);
+  padding:7px 14px;
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+}
+.brand{display:flex; align-items:baseline; gap:9px;}
+.brand .eyebrow{font-family:var(--fmono); font-size:10px; letter-spacing:.12em; color:var(--accent); font-weight:600;}
+.brand h1{font-family:var(--fdisplay); font-size:19px; margin:0; font-weight:700; letter-spacing:.01em; text-transform:uppercase;}
+.brand h1 span{color:var(--accent);}
+.toolbar{margin-left:auto; display:flex; gap:7px; align-items:center; flex-wrap:wrap;}
+.search-wrap{position:relative;}
+.search-wrap input{
+  background:var(--panel); border:1px solid var(--line); color:var(--text);
+  border-radius:6px; padding:6px 10px 6px 28px; font-size:12px; width:180px;
+  outline:none; transition:.15s; font-family:var(--fbody);
+}
+.search-wrap input:focus{border-color:var(--accent); width:220px;}
+.search-wrap svg{position:absolute; left:8px; top:50%; transform:translateY(-50%); opacity:.5; width:13px; height:13px;}
+.btn{
+  background:var(--panel); color:var(--text); border:1px solid var(--line);
+  padding:6px 11px; border-radius:6px; font-size:11.5px; cursor:pointer;
+  display:flex; align-items:center; gap:5px; font-weight:600; letter-spacing:.01em;
+  transition:.15s; font-family:var(--fbody);
+}
+.btn:hover{background:var(--panel2); border-color:var(--accent-dim);}
+.btn.primary{background:var(--accent); color:#fff; border-color:var(--accent);}
+.btn.primary:hover{filter:brightness(1.08);}
+.match-count{font-size:10.5px; color:var(--muted); min-width:60px;}
+
+/* page switcher */
+.pageswitch{flex:0 0 auto; display:flex; gap:6px; padding:6px 14px; background:var(--bg2); border-bottom:1px solid var(--line);}
+.pswbtn{
+  font-family:var(--fdisplay); font-weight:700; font-size:14px; letter-spacing:.03em; text-transform:uppercase;
+  background:var(--panel); color:var(--muted); border:1px solid var(--line); border-radius:6px;
+  padding:4px 14px; cursor:pointer;
+}
+.pswbtn.active{background:var(--accent); color:#fff; border-color:var(--accent);}
+.legend-inline{display:flex; gap:12px; align-items:center; font-size:10px; color:var(--muted); flex-wrap:wrap;}
+.legend-inline .item{display:flex; align-items:center; gap:4px;}
+.legend-inline .lvl{width:9px;height:9px;border-radius:2px;display:inline-block;}
+.legend-inline .swatch{width:9px;height:9px;border-radius:2px;display:inline-block;}
+
+/* ---------- stage / pages ---------- */
+.stage{flex:1; min-height:0; padding:6px 10px 8px; display:flex; flex-direction:row; gap:10px;}
+.page{flex:1; min-width:0; min-height:0; display:flex; flex-direction:column; position:relative;}
+.page + .page{border-left:1px dashed var(--line); padding-left:10px;}
+.page-head{
+  flex:0 0 auto; display:flex; align-items:center; gap:8px;
+  border-bottom:2px solid var(--accent-dim); padding-bottom:4px; margin-bottom:5px; position:relative;
+}
+.page-head .tag8{
+  background:var(--accent); color:#fff; font-weight:700; font-size:9px; font-family:var(--fmono);
+  padding:2px 7px; border-radius:4px; letter-spacing:.06em;
+}
+.page-head .titlebit{font-size:9.5px; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:.03em;}
+.page-head .ghostnum{
+  position:absolute; right:0; top:-12px; font-family:var(--fdisplay); font-weight:800; font-size:34px;
+  color:var(--accent); opacity:.08; line-height:1; user-select:none; pointer-events:none;
+}
+
+.columns{flex:1; min-height:0; display:grid; grid-template-columns:repeat(3,1fr); gap:6px;}
+.column{display:flex; flex-direction:column; gap:5px; min-height:0; overflow:hidden;}
+
+/* ---------- group card ---------- */
+.group{
+  background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+  flex:0 0 auto; display:flex; flex-direction:column; overflow:hidden;
+  transition:border-color .15s, box-shadow .15s;
+}
+.group.open{flex:1 1 0; min-height:0;}
+.group.dim{opacity:.2;}
+.group.hit{border-color:var(--accent); box-shadow:0 0 0 1px var(--accent);}
+.group-head{
+  flex:0 0 auto; display:flex; align-items:center; gap:7px; padding:5px 8px;
+  cursor:pointer; user-select:none; background:var(--head); border-bottom:1px solid var(--line);
+}
+.group-head .lvl-dot{width:7px; height:7px; border-radius:2px; flex:0 0 auto;}
+.lvl-alto{background:var(--bg2); border:1.5px solid #fff;}
+.lvl-subdir{background:var(--steel);}
+.lvl-rpt{background:#c7d3de;}
+.badge{
+  font-family:var(--fmono); font-size:8.5px; font-weight:700; letter-spacing:.02em;
+  padding:1px 5px; border-radius:3px; background:var(--accent); color:#fff;
+  flex:0 0 auto;
+}
+.badge.empty{display:none;}
+.group-head h2{
+  font-family:var(--fdisplay); font-weight:700; font-size:11.5px; text-transform:uppercase;
+  letter-spacing:.005em; margin:0; line-height:1.12; flex:1;
+}
+.chev{transition:transform .2s; opacity:.55; flex:0 0 auto; font-size:9px;}
+.group.open .chev{transform:rotate(90deg);}
+.group-body{
+  flex:1 1 auto; min-height:0; overflow-y:auto; display:none;
+  padding:5px 7px 7px; font-size:9.6px; line-height:1.34;
+}
+.group.open .group-body{display:block;}
+.group-body::-webkit-scrollbar{width:5px;}
+.group-body::-webkit-scrollbar-track{background:transparent;}
+.group-body::-webkit-scrollbar-thumb{background:var(--line); border-radius:3px;}
+
+.desc{color:var(--muted); margin:0 0 5px; font-style:italic; font-size:9.2px;}
+.suplencia{
+  background:rgba(232,196,104,.1); border:1px solid rgba(232,196,104,.35);
+  border-radius:5px; padding:4px 6px; margin-bottom:6px; font-size:9.2px;
+}
+.suplencia b{color:var(--yellow);}
+.note{
+  background:rgba(143,191,143,.1); border:1px solid rgba(143,191,143,.35);
+  border-radius:5px; padding:4px 6px; margin-top:5px; font-size:9.2px; color:#d5ecd5;
+}
+
+.unit{margin-bottom:5px; padding-bottom:5px; border-bottom:1px dashed var(--line);}
+.unit:last-child{border-bottom:none; margin-bottom:0; padding-bottom:0;}
+.unit-title{display:flex; gap:4px; align-items:baseline; flex-wrap:wrap; font-weight:600; margin-bottom:2px; font-size:9.8px;}
+.unit-title .acr{
+  font-family:var(--fmono); background:var(--panel2); color:var(--accent); border:1px solid var(--accent-dim);
+  font-size:8.4px; padding:0 4px; border-radius:3px; font-weight:600;
+}
+ul.bullets{margin:2px 0 0; padding-left:12px;}
+ul.bullets li{margin-bottom:2px; font-size:9.2px;}
+mark{background:var(--yellow); color:var(--yellow-text); padding:0 2px; border-radius:2px;}
+mark.o{background:var(--orange); color:var(--orange-text);}
+mark.g{background:var(--green); color:var(--green-text);}
+.chip{
+  display:inline-block; font-family:var(--fmono); background:var(--panel2); border:1px solid var(--line); color:var(--muted);
+  font-size:8.4px; padding:0 4px; border-radius:3px; margin-left:1px;
+}
+
+/* legend box inside page */
+.legendbox{
+  background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+  padding:9px; font-size:10.6px; flex:0 0 auto;
+}
+.legendbox h3{margin:0 0 6px; font-size:11px; font-family:var(--fdisplay); font-weight:700; letter-spacing:.05em; color:var(--accent); text-transform:uppercase;}
+.legendbox .row{display:flex; align-items:center; gap:7px; margin-bottom:5px;}
+.legendbox .row .lvl-dot{width:11px;height:11px;}
+
+/* ---------- floating study button ---------- */
+.fab{
+  position:fixed; right:16px; bottom:16px; z-index:60;
+  background:var(--accent); color:#fff;
+  border:none; border-radius:26px; padding:11px 17px; font-weight:700; font-size:13px; font-family:var(--fbody);
+  box-shadow:0 8px 22px rgba(0,0,0,.4); cursor:pointer;
+  display:flex; align-items:center; gap:7px;
+}
+.fab:hover{filter:brightness(1.08);}
+
+/* ---------- modal ---------- */
+.modal-backdrop{
+  position:fixed; inset:0; background:rgba(4,9,18,.72); backdrop-filter:blur(2px);
+  display:none; align-items:center; justify-content:center; z-index:100; padding:20px;
+}
+.modal-backdrop.show{display:flex;}
+.modal{
+  background:var(--bg2); border:1px solid var(--line); border-radius:14px;
+  width:100%; max-width:640px; max-height:88vh; overflow:auto;
+  box-shadow:0 20px 60px rgba(0,0,0,.55); font-family:var(--fbody);
+}
+.modal-head{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 16px; border-bottom:1px solid var(--line);
+  position:sticky; top:0; background:var(--bg2); z-index:2;
+}
+.modal-head h2{margin:0; font-size:15px; font-family:var(--fdisplay); font-weight:700; text-transform:uppercase;}
+.modal-head .btn{padding:6px 10px;}
+.tabs{display:flex; gap:6px; padding:10px 16px 0;}
+.tab{
+  padding:6px 12px; border-radius:7px 7px 0 0; font-size:12px; font-weight:700;
+  background:var(--panel); color:var(--muted); cursor:pointer; border:1px solid var(--line); border-bottom:none;
+}
+.tab.active{background:var(--panel2); color:var(--accent);}
+.tabpanel{display:none; padding:16px;}
+.tabpanel.active{display:block;}
+
+/* flashcards */
+.fc-stage{display:flex; flex-direction:column; align-items:center; gap:12px;}
+.fc-progress{font-size:11.5px; color:var(--muted);}
+.fc-card{width:100%; max-width:400px; height:200px; perspective:1200px; cursor:pointer;}
+.fc-inner{position:relative; width:100%; height:100%; transition:transform .5s; transform-style:preserve-3d;}
+.fc-card.flip .fc-inner{transform:rotateY(180deg);}
+.fc-face{
+  position:absolute; inset:0; backface-visibility:hidden;
+  border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding:16px; text-align:center; border:1px solid var(--line);
+}
+.fc-front{background:var(--panel);}
+.fc-front .big{font-family:var(--fmono); font-size:27px; font-weight:700; color:var(--accent); letter-spacing:.02em;}
+.fc-front .hint{font-size:10.5px; color:var(--muted); margin-top:9px;}
+.fc-back{background:#16261a; transform:rotateY(180deg);}
+.fc-back .name{font-weight:700; font-size:14px; margin-bottom:7px;}
+.fc-back .grp{font-size:10.5px; color:var(--muted);}
+.fc-controls{display:flex; gap:7px; flex-wrap:wrap; justify-content:center;}
+.fc-score{display:flex; gap:12px; font-size:11.5px; color:var(--muted);}
+.fc-score b{color:var(--text);}
+
+/* quiz */
+.quiz-q{font-size:13.5px; font-weight:700; margin-bottom:11px;}
+.quiz-opts{display:flex; flex-direction:column; gap:7px; margin-bottom:13px;}
+.quiz-opt{
+  text-align:left; padding:9px 11px; border-radius:8px; border:1px solid var(--line);
+  background:var(--panel); color:var(--text); cursor:pointer; font-size:12.5px; font-family:var(--fbody);
+}
+.quiz-opt:hover{border-color:var(--accent-dim);}
+.quiz-opt.correct{background:rgba(143,191,143,.18); border-color:var(--green); color:#dff2df;}
+.quiz-opt.wrong{background:rgba(217,122,131,.18); border-color:var(--red); color:#ffdde0;}
+.quiz-foot{display:flex; justify-content:space-between; align-items:center;}
+.quiz-score{font-size:11.5px; color:var(--muted);}
+
+/* map / index */
+.idx-list{display:grid; grid-template-columns:repeat(2,1fr); gap:6px;}
+.idx-item{
+  padding:6px 9px; border-radius:6px; background:var(--panel); border:1px solid var(--line);
+  font-size:11.5px; cursor:pointer; display:flex; justify-content:space-between; gap:6px;
+}
+.idx-item:hover{border-color:var(--accent-dim);}
+.idx-item span{font-family:var(--fmono);}
+.idx-item small{color:var(--muted);}
+
+@media (max-width:900px){
+  html,body{overflow:auto; height:auto;}
+  .stage{overflow:visible;}
+  .columns{grid-template-columns:1fr; height:auto;}
+  .column{overflow:visible;}
+  .group.open{flex:0 0 auto;}
+  .group-body{max-height:none; overflow:visible;}
+  .idx-list{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <span class="eyebrow">TEMA 8 · INGRESO ESCALA BÁSICA · POLICÍA NACIONAL</span>
+    <h1>Dirección General de la <span>Policía</span></h1>
+  </div>
+  <div class="toolbar">
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input id="searchInput" type="text" placeholder="Buscar sigla o unidad…">
+    </div>
+    <span class="match-count" id="matchCount"></span>
+    <button class="btn" id="expandAllBtn">Expandir todo</button>
+    <button class="btn" id="collapseAllBtn">Colapsar todo</button>
+    <button class="btn primary" id="studyBtn">📚 Estudio</button>
+  </div>
+</div>
+
+<div class="pageswitch">
+  <div class="legend-inline">
+    <div class="item"><span class="lvl lvl-alto"></span>Alto cargo</div>
+    <div class="item"><span class="lvl lvl-subdir"></span>Subdirector / Comisario Gral.</div>
+    <div class="item"><span class="lvl lvl-rpt"></span>Puesto RPT</div>
+    <div class="item"><span class="swatch" style="background:var(--yellow)"></span>Destacado</div>
+    <div class="item"><span class="swatch" style="background:var(--orange)"></span>Externo</div>
+    <div class="item"><span class="swatch" style="background:var(--green)"></span>Norma / nota</div>
+  </div>
+</div>
+
+<div class="stage">
+  <div class="page active" data-page="1">
+    <div class="page-head">
+      <span class="tag8">TEMA 8</span>
+      <span class="titlebit">Dirección General de la Policía</span>
+      <span class="ghostnum">60</span>
+    </div>
+    <div class="columns" id="columns1"></div>
+  </div>
+  <div class="page" data-page="2">
+    <div class="page-head">
+      <span class="tag8">TEMA 8</span>
+      <span class="titlebit">Dirección General de la Policía</span>
+      <span class="ghostnum">61</span>
+    </div>
+    <div class="columns" id="columns2"></div>
+  </div>
+</div>
+
+<button class="fab" id="fabStudy">📚 Estudiar</button>
+
+<!-- MODAL -->
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Recursos para aprender el esquema</h2>
+      <button class="btn" id="closeModal">✕ Cerrar</button>
+    </div>
+    <div class="tabs">
+      <div class="tab active" data-tab="fc">🃏 Fichas</div>
+      <div class="tab" data-tab="quiz">❓ Test</div>
+      <div class="tab" data-tab="idx">🔎 Índice de siglas</div>
+    </div>
+
+    <div class="tabpanel active" id="panel-fc">
+      <div class="fc-stage">
+        <div class="fc-progress" id="fcProgress"></div>
+        <div class="fc-card" id="fcCard">
+          <div class="fc-inner">
+            <div class="fc-face fc-front">
+              <div class="big" id="fcFront">DAO</div>
+              <div class="hint">Toca la ficha para ver la respuesta</div>
+            </div>
+            <div class="fc-face fc-back">
+              <div class="name" id="fcBackName"></div>
+              <div class="grp" id="fcBackGroup"></div>
+            </div>
+          </div>
+        </div>
+        <div class="fc-controls">
+          <button class="btn" id="fcPrev">◀ Anterior</button>
+          <button class="btn" id="fcDontKnow">😕 No lo sabía</button>
+          <button class="btn primary" id="fcKnow">✅ Lo sabía</button>
+          <button class="btn" id="fcNext">Siguiente ▶</button>
+          <button class="btn" id="fcShuffle">🔀 Barajar</button>
+        </div>
+        <div class="fc-score">Sesión: <b id="scoreKnow">0</b> sabidas · <b id="scoreUnknown">0</b> por repasar</div>
+      </div>
+    </div>
+
+    <div class="tabpanel" id="panel-quiz">
+      <div id="quizArea"></div>
+    </div>
+
+    <div class="tabpanel" id="panel-idx">
+      <div class="idx-list" id="idxList"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =========================================================================
+   DATA — contenido íntegro del esquema (Tema 8: Dirección General de la
+   Policía). Cada "group" es una caja principal del organigrama; cada
+   "unit" es una unidad/servicio interior con sus viñetas.
+   level: 'alto' | 'subdir' | 'rpt'  -> color del punto de jerarquía
+   ========================================================================= */
+
+function U(acr, name, bullets){ return {acr, name, bullets}; }
+
+const PAGE1 = [
+[ // columna 1
+  {id:'dao', tag:'DAO', title:'Dirección Adjunta Operativa', level:'alto',
+   desc:'Coordina y dirige las funciones policiales operativas, colabora con la DGP en orden público y seguridad ciudadana, lidera las unidades centrales, supraterritoriales y territoriales, supervisa los resultados operativos e impulsa la planificación estratégica de la transformación digital.',
+   suplencia:'<b>Suplencia:</b> SDG de Recursos Humanos y Formación, de la SDG de Logística e Innovación y del Gabinete Técnico <mark class="g">(por este orden)</mark>.',
+   units:[
+     U('', 'Secretaría General', []),
+     U('UPEC', 'Unidad de Planificación Estratégica y Coordinación', [
+        'Área de Seguimiento, Inteligencia y Coordinación: <mark>estadística de criminalidad</mark> y control de Servicios Extraordinarios.',
+        'Área de Planificación y Prospectiva: <mark>Plan Estratégico de la PN</mark>.',
+        'Centro Nacional de Comunicaciones: punto permanente. <span class="chip">CNC</span>'
+     ]),
+     U('GEO', 'Grupo Especial de Operaciones', ['Sede en <mark class="o">Guadalajara</mark>.']),
+     U('UAI', 'Unidad de Asuntos Internos', ['Investiga <mark>infracciones penales y faltas éticas</mark> cometidas por los policías nacionales.']),
+     U('BOA', 'Brigada Operativa de Apoyo', ['Apoyo <mark>logístico y táctico</mark>.'])
+   ]},
+  {id:'cgpj', tag:'CGPJ', title:'Comisaría General de Policía Judicial', level:'subdir', units:[
+     U('UCCOT', 'Unidad Central de Coordinación Operativa y Técnica', ['<mark>Plan Estratégico</mark>.',
+        'Secretaría General: elabora metodologías, estudios y prospectiva; Oficina Nacional Central de Estupefacientes <span class="chip">ONCE</span>.',
+        'Brigada de Coordinación Operativa: gabinete de asistencia inmediata y apoyo.']),
+     U('UDYCO', 'Unidad Central de Droga y Crimen Organizado', [
+        'Unidad de <mark>Agentes Encubiertos</mark>.',
+        'BC de Estupefacientes.',
+        'BC de Crimen Organizado: <span class="chip">GRECO</span>, Grupo de Localización de Fugitivos, punto de contacto con Red <mark class="o">ENFAST</mark>.',
+        'Unidad Adscrita a la <mark class="o">Fiscalía General del Estado (FGE)</mark>.'
+     ]),
+     U('UDEV', 'Unidad de Delincuencia Especializada y Violenta', [
+        'BC Investigación Puestos de Delincuencia Especializada: patrimonio, propiedad intelectual e industrial y patrimonio histórico.',
+        'BC de Investigación de Delitos contra las Personas: vida, libertad, <mark>consumidores</mark>, medio ambiente y <mark>dopaje deportivo</mark>; desapariciones de mayores de edad.'
+     ]),
+     U('UCIC', 'Unidad Central de Inteligencia Criminal', ['Información, tratamiento, análisis; <mark>herramienta para investigar</mark>.']),
+     U('UDEF', 'Unidad Central de Delincuencia Económica y Fiscal', [
+        'BC Delincuencia Económica y Fiscal: SS, Hacienda, D. trabajadores, financieros, bursátiles, espionaje industrial y estafas de trascendencia; punto de contacto con F.E.',
+        'BC Investigación Blanqueo de Capitales y Anticorrupción: blanqueo de capitales, piratería internacional y corrupción; localización y recuperación de activos, <span class="chip">Oficina de Localización de Activos (OLA)</span>.',
+        'BC de Inteligencia Financiera: prevención de blanqueo, adscrita al Servicio Ejecutivo de la Comisión de Prevención del Blanqueo e Infracciones Monetarias <span class="chip">SEPBLAC</span>.',
+        'B. Investigación del Banco de España: <mark>falsificación de moneda</mark>. Oficina Central Nacional en estas materias.',
+        'Unidad Adscrita a la <mark class="o">Fiscalía Especial contra la Corrupción y Criminalidad Organizada</mark>.'
+     ]),
+     U('UCC', 'Unidad de Ciberdelincuencia', [
+        'Centro de Prevención y Respuesta E-Crime.',
+        'BC Investigación Tecnológica (BIT): contra las personas, explotación sexual infantil, redes sociales y páginas web.',
+        'BC Seguridad Informática (BSI): ciberataques, software malicioso, criptovalores, propiedad intelectual con tecnologías, fraude BEC; punto de contacto Convenio de Budapest.',
+        'BC de Fraude Informático: a través de internet y telecomunicaciones.'
+     ]),
+     U('UFAM', 'Unidad Central de Atención a la Familia y Mujer', [
+        'Género, doméstica, sexual y menores.',
+        'Brigada Operativa de Atención y Apoyo a la Mujer.',
+        'Oficina de Estudios: seguimiento, análisis y control.'
+     ])
+  ]}
+],
+[ // columna 2
+  {id:'dotd', tag:'DOTD', title:'División de Operaciones y Transformación Digital', level:'subdir', units:[
+     U('', 'Secretaría General', []),
+     U('', 'Área de Coordinación Operativa', []),
+     U('', 'Jefatura de Sistemas Especiales', []),
+     U('', 'Unidad Aérea de la Policía', [
+        'Área de Medios Aéreos: gestión y mantenimiento de aeronaves y drones, y formación del personal.',
+        'Área de Seguridad y Protección Aérea: seguridad aeroportuaria y funciones de <mark class="o">policía de aviación civil</mark>.'
+     ]),
+     U('', 'Unidad Central de Apoyo Tecnológico', [
+        'Área de Transformación Digital y Coordinación en Ciberseguridad: estrategia digital y coordinación de ciberoperaciones.',
+        'Desarrollo Tecnológico: actúa como <mark>Observatorio Tecnológico</mark>.'
+     ]),
+     U('', 'Comisarías Especiales (6)', ['Casa Real; Presidencia del Gobierno; Congreso; Defensor del Pueblo; Tribunal de Cuentas; Senado; Tribunal Constitucional; CGPJ; Tribunal Supremo; Audiencia Nacional.']),
+     U('', 'Unidades Adscritas a CCAA', []),
+     U('', 'Unidades de Cooperación Policial Adscritas a CCAA', [])
+  ]},
+  {id:'cgss', tag:'CGSS', title:'Comisaría General de Seguridad Ciudadana', level:'subdir', units:[
+     U('UCOT', 'Unidad Central de Coordinación Operativa y Técnica', ['<mark>Plan Estratégico</mark>.',
+        'Secretaría General: elabora metodologías e investigación, estudios y prospectiva.',
+        'Brigada de Coordinación Operativa: <span class="chip">ON Deportes</span>, <span class="chip">OC Asuntos Taurinos</span>.',
+        'Gabinete: asistencia inmediata y apoyo.']),
+     U('UIP', 'Jefatura de Unidades de Intervención Policial', ['Prevención, mantenimiento y restablecimiento del <mark>orden público</mark>.']),
+     U('UCP', 'Unidad Central de Protección', [
+        'BC de Escoltas: altas personalidades del Estado, edificios e instalaciones.',
+        'BC de Protecciones Especiales: personalidades o delegaciones extranjeras y eventos internacionales, testigos protegidos, <mark class="o">traslados de obras de arte (TOA)</mark>; Brigada Operativa del Museo del Prado.'
+     ]),
+     U('', 'Jefatura de Unidades Especiales', ['Caballería, Guías Caninos, Subsuelo y Protección Ambiental, Brigada Móvil-Policía en el Transporte y UPR (triple dependencia: JSP, C. Provinciales, C. Locales).']),
+     U('', 'Unidad Central de Seguridad Privada', ['Autoridad Nacional de Control. Se adscribe el Interlocutor Policial Nacional Sanitario y el Foro de Interlocución Policial para la Igualdad de Género en SP.']),
+     U('', 'BC de Inspección e Investigación', []),
+     U('', 'BC de Empresas y Personal', ['Habilitación.']),
+     U('', 'Unidad Central de Participación Ciudadana', ['Relaciones con ciudadanos, demanda social; responsable Nacional para la Interlocución Social en <mark class="g">Delitos de Odio</mark>.'])
+  ]}
+],
+[ // columna 3
+  {id:'dci', tag:'DCI', title:'División de Cooperación Internacional', level:'subdir', units:[
+     U('', 'Secretaría General', ['Centro de comunicaciones internacionales <span class="chip">CENCI</span> / oficina Red BDL de la UE.']),
+     U('ACI', 'Unidad de Coordinación Internacional', ['Gestiona la <mark>cooperación policial bilateral y multilateral</mark>, representando a la DGP en la UE y otros organismos internacionales.']),
+     U('', 'Oficina Central Nacional de Interpol', ['Intercambio de información, cooperación técnica y operativa, y gestión de <mark class="o">extradiciones y traslados internacionales</mark>.']),
+     U('', 'Unidad Nacional de Europol', ['Enlace y coordinador nacional con la Agencia Europol.']),
+     U('SIRENE', 'Oficina SIRENE', ['Gestiona el <mark>SIS</mark>, tramita entregas de reclamados <span class="chip">OEDE</span> y coordina comisarías fronterizas, actuando como punto <mark class="o">post-hit</mark> para el intercambio de perfiles de ADN y huellas.'])
+  ]},
+  {id:'cginfo', tag:'', title:'Comisaría General de Información', level:'subdir',
+   desc:'Captación, recepción, tratamiento y desarrollo de la información de interés para el orden y la seguridad pública; su explotación o aprovechamiento operativo, especialmente en materia antiterrorista.',
+   units:[],
+   note:'Integrada por las unidades y servicios que se determinen mediante <mark class="g">Orden Comunicada</mark>, conforme a lo dispuesto en los Acuerdos del CM y la Ley 9/1968, sobre secretos oficiales. Especialidad de <mark class="o">NRBQ</mark> y <mark class="o">TEDAX</mark>.'},
+  {id:'cgpc', tag:'CGPC', title:'Comisaría General de Policía Científica', level:'subdir', units:[
+     U('UCOT', 'Unidad Central de Coordinación Operativa y Técnica', ['<mark>Plan Estratégico</mark>.',
+        'Secretaría General: metodologías, investigación, estudios y prospectiva.',
+        'Brigada de Coordinación Operativa: Base de datos de Inteligencia Científica Policial <span class="chip">BINCIPOL</span>.',
+        'Gabinete: asistencia inmediata y apoyo.']),
+     U('', 'Unidad Central de Identificación', ['Informes periciales, identificación facial, necroidentificación, antropología y entomología forense; identificación biométrica <span class="chip">ABIS</span>.']),
+     U('', 'Unidad Central de Criminalística', ['Informes periciales, <mark class="o">falsificación documental</mark>, grafoscopia, balística, trazas instrumentales y acústica forense.']),
+     U('', 'Unidad Central de Investigación en la Escena del Delito', ['Inspecciones oculares, reseña fotográfica, tratamiento de imagen, informes periciales.']),
+     U('', 'Unidad Central de Análisis Científicos', ['Sección Biología-ADN, Química-Toxicología; realiza informes periciales.']),
+     U('', 'Unidad Central de Tecnología y Relaciones Internacionales', ['Informes periciales en ingeniería e informática forense; control de calidad. Bases <span class="chip">SAID</span> / <span class="chip">EURODAC</span>.'])
+  ]}
+]
+];
+
+const PAGE2 = [
+[ // columna 1
+  {id:'gabinete', tag:'', title:'Gabinete Técnico', level:'alto', units:[
+     U('', 'Secretaría General', ['Dirige y supervisa la confección de la <mark>Orden General de la DGP</mark>.']),
+     U('', 'Servicio de Relaciones Institucionales', ['Preguntas parlamentarias, relaciones con el DP, acceso y transparencia.']),
+     U('', 'Servicio de Asuntos Generales', ['Oficina de Asistencia en Materia de Registros <span class="chip">OAMR</span>; Oficina de Traducción e Interpretación de Lenguas <span class="chip">OTIL</span>.']),
+     U('', 'Área de Publicaciones', ['Elabora las <mark>revistas oficiales</mark> y gestiona el fondo fotográfico documental; Programa Editorial del MI; relaciones con la Fundación Policía Española.']),
+     U('', 'Área Jurídica', ['Oficina Central de Protección de Datos de la PN, punto de contacto con la <mark class="o">Agencia Española de Protección de Datos</mark>; informe de la Abogacía del Estado.']),
+     U('', 'Área de DDHH e Igualdad', ['Oficina Nacional de DDHH; Oficina Nacional para la Igualdad de Género <span class="chip">ONIG</span>.']),
+     U('', 'Área de Coordinación Institucional e Identidad Corporativa', ['Actos oficiales de la DGP; Servicio de Protocolo, <mark class="g">Banda de Música</mark>, Oficina Marca Policía Nacional.'])
+  ]},
+  {id:'cgeyf', tag:'CGEYF', title:'Comisaría General de Extranjería y Fronteras', level:'subdir', units:[
+     U('UCOT', 'Unidad Central de Coordinación Operativa y Técnica', ['<mark>Plan Estratégico</mark>.']),
+     U('', 'Secretaría General', ['Elabora metodologías, investigación, estudios y prospectiva; <mark>Registro Central de Extranjeros</mark>, Registro de MENAS.']),
+     U('', 'Brigada de Coordinación Operativa', []),
+     U('', 'Gabinete', ['Asistencia inmediata y apoyo.']),
+     U('UCRIF', 'Unidad Central de Redes de Inmigración Ilegal y Falsedades Documentales', ['Oficina Central de Redes de Inmigración.']),
+     U('', 'BC de Acción Exterior', ['Oficial de Enlace de la FGE.']),
+     U('', 'BC contra la Trata de Seres Humanos', ['Servicio de Atención a las Víctimas de <mark class="o">Trata (TSH)</mark>.']),
+     U('', 'B. de Investigación de Redes', ['Tráfico de personas, inmigración ilegal; Punto Atenas; documentos falsos y base de datos de documentos falsos/auténticos <span class="chip">FADO</span>.']),
+     U('UCF', 'Unidad Central de Fronteras', []),
+     U('BRIC', 'Brigada de Respuesta a la Inmigración Clandestina', []),
+     U('CEFRONT', 'Centro Nacional de Coordinación de Puestos Fronterizos', []),
+     U('UCR', 'Unidad Central de Repatriaciones', ['Coordina Centros de Internamiento de Extranjeros <span class="chip">CIE</span> y Centros de Atención Temporal de Extranjeros <span class="chip">CATE</span>. Servicio de expulsión de delincuentes extranjeros <span class="chip">SEDEX</span>.']),
+     U('CENIF', 'Centro Nacional de Inmigración y Fronteras', ['Oficina Central Nacional. Punto Nacional de Contacto <span class="chip">NFPOC</span> y Centro Nacional de Coordinación <span class="chip">NCC</span>.']),
+     U('', 'Brigada de Coordinación con Frontex', [])
+  ]}
+],
+[ // columna 2
+  {id:'sgli', tag:'SGLI', title:'Subdirección General de Logística e Innovación', level:'subdir', units:[
+     U('', 'Secretaría General', ['Régimen interior y seguridad del complejo policial de <mark class="o">Canillas</mark>.']),
+     U('', 'Servicio de Planificación y Fondos Europeos', ['Punto de contacto de la Oficina de Recuperación y Gestión de Activos del Ministerio de Justicia <span class="chip">ORGA</span>.']),
+     U('', 'Servicio de Innovación y Desarrollo', []),
+     U('', 'Gabinete de Asuntos Jurídicos, Económicos y Técnicos', []),
+     U('', 'Unidad de Informática y Telecomunicaciones', [
+        'Área de Telecomunicaciones: <mark class="o">Inhibición de drones/VANT, SITEL</mark>.',
+        'Área de Informática: se incardina el <mark>Centro de Proceso de Datos</mark>, sede en El Escorial (Madrid). Hardware y software, así como las bases de datos.'
+     ])
+  ]},
+  {id:'deconomica', tag:'', title:'División Económica y Técnica', level:'subdir',
+   desc:'Estudio de las necesidades, el análisis y control de calidad y, en su caso, la adquisición de los productos y equipamientos, y la gestión de los medios materiales.',
+   units:[
+     U('', 'Secretaría General', ['Coordina el <mark>Tribunal Médico</mark>.']),
+     U('', 'Unidad Económica', ['Área de Asuntos Jurídicos; Área Presupuestaria; Área de Control del Gasto y Tesorería: ejecuta el <mark>gasto</mark>.']),
+     U('', 'Unidad Técnica', [
+        'Área de Infraestructuras Policiales: inventario patrimonial.',
+        'Área de Automoción: <span class="chip">GOIT</span> y la Autoescuela de la DGP.',
+        'Área de Armamento y Equipamiento Policial: gestiona el <mark>Plan Nacional de Tiro</mark>, galería, armamento, uniformidad y equipos de dotación policial.'
+     ])
+  ]},
+  {id:'dpersonal', tag:'', title:'División de Personal', level:'subdir', units:[
+     U('', 'Secretaría General', ['Labores de <mark class="o">imprenta</mark>.']),
+     U('', 'Área de Retribuciones', ['<span class="chip">4.º OF. DEL POLICÍA</span>.']),
+     U('', 'Área de Asuntos Jurídicos', []),
+     U('', 'Área de Personal no Policial', []),
+     U('', 'Unidad de Gestión de Personal Policial', []),
+     U('', 'Área de Concursos y Baremación', ['Catálogo de Puestos de Trabajo de la PN.']),
+     U('', 'Área de Contratación y Tramitación', []),
+     U('', 'Unidad de Régimen Disciplinario', []),
+     U('', 'Área de Coordinación de Régimen Disciplinario', [])
+  ]}
+],
+[ // columna 3
+  {id:'sdrrhh', tag:'', title:'Subdirección General de Recursos Humanos y Formación', level:'subdir', units:[
+     U('', 'Secretaría General', [
+        'Área de Coordinación Jurídica y Reclamaciones Adm.',
+        'Área de Asistencia Letrada: <mark>defensa legal del funcionario</mark> por actuaciones del servicio.',
+        'Secretaría del Consejo de Policía. <span class="chip">Adscrito</span>',
+        'Secretaría de la Comisión de Seguridad y Salud Laboral Policial. <span class="chip">Adscrito</span>'
+     ]),
+     U('', 'Unidad de Planificación de Recursos Humanos', ['Área de Auditoría y Gestión de Calidad; Área de Análisis Estratégico.']),
+     U('', 'Unidad de Prevención de Riesgos Laborales y Protección Sociosanitaria', [
+        'Área de Coordinación de Prevención de Riesgos Laborales.',
+        'Área Sanitaria: planifica la asistencia sanitaria, implementando el control del <mark class="o">absentismo</mark> y el Programa de Acción Social.'
+     ])
+  ]},
+  {id:'dformacion', tag:'', title:'División de Formación y Perfeccionamiento', level:'subdir', units:[
+     U('', 'Secretaría General', ['Centro de Idiomas.']),
+     U('', 'Área de Planificación y Psicopedagogía', []),
+     U('', 'Área de Innovación Formativa', ['Campus virtual.']),
+     U('', 'Escuela Nacional de Policía', ['Sede en <mark class="o">Ávila</mark>. Sede de <span class="chip">IBERPOL</span>.']),
+     U('', 'Área de Régimen Docente', []),
+     U('', 'Área de Régimen Interior', ['Campus virtual.']),
+     U('', 'Centro Universitario de Formación de la PN', []),
+     U('CAE', 'Centro de Actualización y Especialización', ['Sedes: Ávila, Linares y Madrid.']),
+     U('', 'Área de Planificación y Coordinación Docente', []),
+     U('', 'Área de Coordinación Formativa Internacional', ['<span class="chip">CEPOL</span>.']),
+     U('', 'Área de Prácticas Operativas', ['Linares.']),
+     U('CAEP', 'Centro de Altos Estudios Policiales', ['Área de Régimen Docente.']),
+     U('IEP', 'Instituto de Estudios de la Policía', []),
+     U('', 'Unidad de Procesos Selectivos', [])
+  ]},
+  {id:'ddocumentacion', tag:'', title:'División de Documentación', level:'subdir',
+   desc:'Organización y gestión de los servicios de documentación de españoles y extranjeros, de los archivos policiales y de la Sección del Archivo General en la DGP.',
+   units:[
+     U('', 'Secretaría General', ['Accede al <mark>Registro Central de Extranjeros</mark>.']),
+     U('', 'Área de Documentación de Españoles y Extranjeros', []),
+     U('', 'Área de Tratamiento Documental y Archivo', ['Servicio de señalamientos, antecedentes de las personas de interés policial y de las requisitorias judiciales y policiales; <mark class="g">Sección del Archivo General del MI</mark>.'])
+  ]}
+]
+];
+
+/* =========================================================================
+   RENDER
+   ========================================================================= */
+function renderGroup(g){
+  const lvlClass = g.level === 'alto' ? 'lvl-alto' : (g.level === 'subdir' ? 'lvl-subdir' : 'lvl-rpt');
+  let body = '';
+  if(g.desc) body += `<p class="desc">${g.desc}</p>`;
+  if(g.suplencia) body += `<div class="suplencia">${g.suplencia}</div>`;
+  (g.units||[]).forEach(u=>{
+    body += `<div class="unit">`;
+    body += `<div class="unit-title">${u.acr?`<span class="acr">${u.acr}</span>`:''}<span>${u.name}</span></div>`;
+    if(u.bullets && u.bullets.length){
+      body += `<ul class="bullets">${u.bullets.map(b=>`<li>${b}</li>`).join('')}</ul>`;
+    }
+    body += `</div>`;
+  });
+  if(g.note) body += `<div class="note">${g.note}</div>`;
+
+  return `
+  <div class="group" data-id="${g.id}" data-search="${(g.title+' '+g.tag+' '+(g.units||[]).map(u=>u.acr+' '+u.name).join(' ')).toLowerCase()}">
+    <div class="group-head" onclick="toggleGroup(this)">
+      <span class="lvl-dot ${lvlClass}"></span>
+      <span class="badge ${g.tag?'':'empty'}">${g.tag}</span>
+      <h2>${g.title}</h2>
+      <span class="chev">▶</span>
+    </div>
+    <div class="group-body">${body}</div>
+  </div>`;
+}
+
+function renderColumns(cols, targetEl, withLegend){
+  targetEl.innerHTML = cols.map(col => `<div class="column">${col.map(renderGroup).join('')}</div>`).join('');
+  if(withLegend){
+    const legendHtml = `
+    <div class="legendbox">
+      <h3>Nivel orgánico del titular</h3>
+      <div class="row"><span class="lvl-dot lvl-alto"></span> Subsecretario</div>
+      <div class="row"><span class="lvl-dot lvl-subdir"></span> Subdirector General</div>
+      <div class="row"><span class="lvl-dot lvl-rpt"></span> Puesto de Trabajo (RPT)</div>
+    </div>`;
+    targetEl.lastElementChild.insertAdjacentHTML('beforeend', legendHtml);
+  }
+}
+
+renderColumns(PAGE1, document.getElementById('columns1'), false);
+renderColumns(PAGE2, document.getElementById('columns2'), true);
+
+function toggleGroup(headEl){
+  headEl.parentElement.classList.toggle('open');
+}
+document.getElementById('expandAllBtn').onclick = ()=>document.querySelectorAll('.group').forEach(g=>g.classList.add('open'));
+document.getElementById('collapseAllBtn').onclick = ()=>document.querySelectorAll('.group').forEach(g=>g.classList.remove('open'));
+
+/* =========================================================================
+   SEARCH
+   ========================================================================= */
+const searchInput = document.getElementById('searchInput');
+const matchCount = document.getElementById('matchCount');
+searchInput.addEventListener('input', ()=>{
+  const q = searchInput.value.trim().toLowerCase();
+  const groups = document.querySelectorAll('.group');
+  let n = 0;
+  groups.forEach(g=>{
+    const hay = g.dataset.search;
+    if(!q){ g.classList.remove('dim','hit'); return; }
+    if(hay.includes(q)){
+      g.classList.remove('dim'); g.classList.add('hit','open'); n++;
+    } else {
+      g.classList.add('dim'); g.classList.remove('hit');
+    }
+  });
+  matchCount.textContent = q ? `${n} coincidencia(s)` : '';
+});
+
+/* =========================================================================
+   MODAL / TABS
+   ========================================================================= */
+const modalBackdrop = document.getElementById('modalBackdrop');
+function openModal(){ modalBackdrop.classList.add('show'); }
+function closeModalFn(){ modalBackdrop.classList.remove('show'); }
+document.getElementById('studyBtn').onclick = openModal;
+document.getElementById('fabStudy').onclick = openModal;
+document.getElementById('closeModal').onclick = closeModalFn;
+modalBackdrop.addEventListener('click', e=>{ if(e.target===modalBackdrop) closeModalFn(); });
+
+document.querySelectorAll('.tab').forEach(t=>{
+  t.onclick = ()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.tabpanel').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById('panel-'+t.dataset.tab).classList.add('active');
+  };
+});
+
+/* =========================================================================
+   FLASHCARD + QUIZ DATA (todas las siglas del esquema)
+   ========================================================================= */
+const ACRONYMS = [
+  ['DAO','Dirección Adjunta Operativa','Coordina y dirige las funciones policiales operativas de la DGP.'],
+  ['UPEC','Unidad de Planificación Estratégica y Coordinación','Estadística de criminalidad, Plan Estratégico de la PN, Centro Nacional de Comunicaciones.'],
+  ['GEO','Grupo Especial de Operaciones','Unidad de élite, sede en Guadalajara. (Bajo la DAO)'],
+  ['UAI','Unidad de Asuntos Internos','Investiga infracciones penales y faltas éticas de policías nacionales.'],
+  ['BOA','Brigada Operativa de Apoyo','Apoyo logístico y táctico a la DAO.'],
+  ['CGPJ','Comisaría General de Policía Judicial','Investigación criminal: drogas, delincuencia económica, ciberdelincuencia, familia y mujer, etc.'],
+  ['UCCOT','Unidad Central de Coordinación Operativa y Técnica','Elabora el Plan Estratégico de la Comisaría a la que pertenece (aparece en varias Comisarías Generales).'],
+  ['ONCE','Oficina Nacional Central de Estupefacientes','Depende de la UCCOT de la CGPJ.'],
+  ['UDYCO','Unidad Central de Droga y Crimen Organizado','Agentes encubiertos, estupefacientes, GRECO, enlace con la Fiscalía General del Estado.'],
+  ['GRECO','Grupo de Respuesta Especial al Crimen Organizado','BC de Crimen Organizado; incluye el Grupo de Localización de Fugitivos.'],
+  ['FGE','Fiscalía General del Estado','Unidad de la UDYCO adscrita a la FGE.'],
+  ['UDEV','Unidad de Delincuencia Especializada y Violenta','Delitos patrimoniales, contra las personas, consumidores, dopaje deportivo.'],
+  ['UCIC','Unidad Central de Inteligencia Criminal','Información, tratamiento y análisis; herramienta para investigar.'],
+  ['UDEF','Unidad Central de Delincuencia Económica y Fiscal','Blanqueo de capitales, corrupción, falsificación de moneda, OLA, SEPBLAC.'],
+  ['OLA','Oficina de Localización de Activos','Localización y recuperación de activos (dentro de UDEF).'],
+  ['SEPBLAC','Servicio Ejecutivo de la Comisión de Prevención del Blanqueo e Infracciones Monetarias','A ella se adscribe la BC de Inteligencia Financiera de la UDEF.'],
+  ['UCC','Unidad de Ciberdelincuencia','E-Crime, BIT, BSI, fraude informático.'],
+  ['BIT','Brigada de Investigación Tecnológica','Delitos contra las personas, explotación sexual infantil, redes sociales (dentro de UCC).'],
+  ['BSI','Brigada de Seguridad Informática','Ciberataques, malware, criptovalores, fraude BEC (dentro de UCC).'],
+  ['UFAM','Unidad Central de Atención a la Familia y Mujer','Género, doméstica, sexual y menores.'],
+  ['DOTD','División de Operaciones y Transformación Digital','Unidad Aérea, Apoyo Tecnológico, Comisarías Especiales, unidades adscritas a CCAA.'],
+  ['DCI','División de Cooperación Internacional','Interpol, Europol, SIRENE, cooperación policial bilateral y multilateral.'],
+  ['ACI','Unidad de Coordinación Internacional','Cooperación policial bilateral y multilateral (dentro de DCI).'],
+  ['CENCI','Centro de Comunicaciones Internacionales','Secretaría General de la DCI; oficina Red BDL de la UE.'],
+  ['SIRENE','Supplementary Information Request at the National Entry','Gestiona el SIS, entregas de reclamados (OEDE), coordina comisarías fronterizas.'],
+  ['OEDE','Orden Europea de Detención y Entrega','Se tramita desde la Oficina SIRENE.'],
+  ['CGSS','Comisaría General de Seguridad Ciudadana','Orden público, protección, unidades especiales, participación ciudadana.'],
+  ['UIP','Unidad de Intervención Policial','Prevención, mantenimiento y restablecimiento del orden público (dentro de CGSS).'],
+  ['UCP','Unidad Central de Protección','Escoltas y protecciones especiales (personalidades, testigos, obras de arte).'],
+  ['TOA','Traslados de Obras de Arte','Función de la BC de Protecciones Especiales de la UCP.'],
+  ['CGPC','Comisaría General de Policía Científica','Identificación, criminalística, escena del delito, análisis científicos.'],
+  ['BINCIPOL','Base de datos de Inteligencia Científica Policial','Gestionada por la Brigada de Coordinación Operativa de la UCOT (CGPC).'],
+  ['ABIS','Automated Biometric Identification System','Identificación biométrica, Unidad Central de Identificación (CGPC).'],
+  ['SAID','Sistema Automatizado de Identificación Dactilar','Base de datos usada por la Unidad Central de Tecnología (CGPC).'],
+  ['EURODAC','Base europea de huellas dactilares de solicitantes de asilo','Vinculada a la Unidad Central de Tecnología de la CGPC.'],
+  ['GABINETE','Gabinete Técnico','Orden General de la DGP, relaciones institucionales, publicaciones, área jurídica, DDHH.'],
+  ['OAMR','Oficina de Asistencia en Materia de Registros','Servicio de Asuntos Generales del Gabinete Técnico.'],
+  ['OTIL','Oficina de Traducción e Interpretación de Lenguas','Servicio de Asuntos Generales del Gabinete Técnico.'],
+  ['ONIG','Oficina Nacional para la Igualdad de Género','Área de DDHH e Igualdad del Gabinete Técnico.'],
+  ['SGLI','Subdirección General de Logística e Innovación','Complejo de Canillas, fondos europeos, informática y telecomunicaciones.'],
+  ['ORGA','Oficina de Recuperación y Gestión de Activos','Del Ministerio de Justicia; contacto vía Servicio de Planificación de la SGLI.'],
+  ['VANT','Vehículo Aéreo No Tripulado (dron)','Su inhibición corresponde al Área de Telecomunicaciones de la SGLI.'],
+  ['SITEL','Sistema de Interceptación de las Telecomunicaciones','Gestionado por el Área de Telecomunicaciones de la SGLI.'],
+  ['GOIT','Grupo Operativo de Intervención Técnica (automoción)','Área de Automoción de la Unidad Técnica, División Económica y Técnica.'],
+  ['CGEYF','Comisaría General de Extranjería y Fronteras','Inmigración, redes de trata, fronteras, repatriaciones, Frontex.'],
+  ['UCRIF','Unidad Central de Redes de Inmigración Ilegal y Falsedades Documentales','Oficina Central de Redes de Inmigración (dentro de CGEYF).'],
+  ['TSH','Trata de Seres Humanos','La BC contra la TSH atiende a las víctimas (dentro de CGEYF).'],
+  ['FADO','False and Authentic Documents Online','Base de datos de documentos falsos/auténticos, usada por la B. de Investigación de Redes.'],
+  ['UCF','Unidad Central de Fronteras','Control y gestión de fronteras (dentro de CGEYF).'],
+  ['BRIC','Brigada de Respuesta a la Inmigración Clandestina','Unidad de la CGEYF.'],
+  ['CEFRONT','Centro Nacional de Coordinación de Puestos Fronterizos','Unidad de la CGEYF.'],
+  ['UCR','Unidad Central de Repatriaciones','Coordina CIE y CATE; servicio de expulsión SEDEX (dentro de CGEYF).'],
+  ['CIE','Centro de Internamiento de Extranjeros','Coordinado por la UCR.'],
+  ['CATE','Centro de Atención Temporal de Extranjeros','Coordinado por la UCR.'],
+  ['SEDEX','Servicio de Expulsión de Delincuentes Extranjeros','Depende de la UCR.'],
+  ['CENIF','Centro Nacional de Inmigración y Fronteras','Oficina Central Nacional; incluye NFPOC y NCC (dentro de CGEYF).'],
+  ['NFPOC','National Frontex Point of Contact','Punto Nacional de Contacto con Frontex, dentro del CENIF.'],
+  ['NCC','National Coordination Centre','Centro Nacional de Coordinación, dentro del CENIF.'],
+  ['CAE','Centro de Actualización y Especialización','Sedes en Ávila, Linares y Madrid (División de Formación).'],
+  ['CEPOL','Agencia de la Unión Europea para la Formación Policial','Coordinación Formativa Internacional (División de Formación).'],
+  ['CAEP','Centro de Altos Estudios Policiales','División de Formación y Perfeccionamiento.'],
+  ['IEP','Instituto de Estudios de la Policía','División de Formación y Perfeccionamiento.'],
+  ['IBERPOL','Red Iberoamericana de Formación Policial','Sede en la Escuela Nacional de Policía (Ávila).']
+];
+
+let deck = [...ACRONYMS];
+let fcIndex = 0;
+let scoreKnow = 0, scoreUnknown = 0;
+const fcCard = document.getElementById('fcCard');
+const fcFront = document.getElementById('fcFront');
+const fcBackName = document.getElementById('fcBackName');
+const fcBackGroup = document.getElementById('fcBackGroup');
+const fcProgress = document.getElementById('fcProgress');
+
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; }
+  return arr;
+}
+function renderCard(){
+  fcCard.classList.remove('flip');
+  const [acr,name,note] = deck[fcIndex];
+  fcFront.textContent = acr;
+  fcBackName.textContent = name;
+  fcBackGroup.textContent = note;
+  fcProgress.textContent = `Ficha ${fcIndex+1} de ${deck.length}`;
+  document.getElementById('scoreKnow').textContent = scoreKnow;
+  document.getElementById('scoreUnknown').textContent = scoreUnknown;
+}
+fcCard.onclick = ()=> fcCard.classList.toggle('flip');
+document.getElementById('fcNext').onclick = ()=>{ fcIndex=(fcIndex+1)%deck.length; renderCard(); };
+document.getElementById('fcPrev').onclick = ()=>{ fcIndex=(fcIndex-1+deck.length)%deck.length; renderCard(); };
+document.getElementById('fcShuffle').onclick = ()=>{ shuffle(deck); fcIndex=0; renderCard(); };
+document.getElementById('fcKnow').onclick = ()=>{ scoreKnow++; fcIndex=(fcIndex+1)%deck.length; renderCard(); };
+document.getElementById('fcDontKnow').onclick = ()=>{ scoreUnknown++; fcIndex=(fcIndex+1)%deck.length; renderCard(); };
+renderCard();
+
+/* =========================================================================
+   QUIZ
+   ========================================================================= */
+const quizArea = document.getElementById('quizArea');
+let quizScore = 0, quizTotal = 0, currentQ = null;
+
+function newQuestion(){
+  const pool = ACRONYMS;
+  const correct = pool[Math.floor(Math.random()*pool.length)];
+  let wrongs = shuffle(pool.filter(p=>p[0]!==correct[0])).slice(0,3);
+  const options = shuffle([correct, ...wrongs]);
+  currentQ = {correct, options};
+  quizArea.innerHTML = `
+    <div class="quiz-q">¿Qué significa la sigla <span style="color:var(--accent)">${correct[0]}</span>?</div>
+    <div class="quiz-opts">
+      ${options.map(o=>`<button class="quiz-opt" data-name="${o[1].replace(/"/g,'&quot;')}">${o[1]}</button>`).join('')}
+    </div>
+    <div class="quiz-foot">
+      <span class="quiz-score">Aciertos: <b>${quizScore}</b> / ${quizTotal}</span>
+      <button class="btn primary" id="quizNextBtn">Siguiente pregunta ▶</button>
+    </div>`;
+  quizArea.querySelectorAll('.quiz-opt').forEach(btn=>{
+    btn.onclick = ()=>{
+      quizArea.querySelectorAll('.quiz-opt').forEach(b=>b.disabled=true);
+      quizTotal++;
+      const isRight = btn.dataset.name === currentQ.correct[1];
+      if(isRight){ btn.classList.add('correct'); quizScore++; }
+      else{
+        btn.classList.add('wrong');
+        quizArea.querySelectorAll('.quiz-opt').forEach(b=>{ if(b.dataset.name===currentQ.correct[1]) b.classList.add('correct'); });
+      }
+      quizArea.querySelector('.quiz-score').innerHTML = `Aciertos: <b>${quizScore}</b> / ${quizTotal}`;
+    };
+  });
+  document.getElementById('quizNextBtn').onclick = newQuestion;
+}
+newQuestion();
+
+/* =========================================================================
+   ÍNDICE DE SIGLAS
+   ========================================================================= */
+const idxList = document.getElementById('idxList');
+idxList.innerHTML = ACRONYMS
+  .slice()
+  .sort((a,b)=>a[0].localeCompare(b[0]))
+  .map(([acr,name])=>`<div class="idx-item" data-acr="${acr}"><span>${acr}</span><small>${name}</small></div>`)
+  .join('');
+idxList.querySelectorAll('.idx-item').forEach(item=>{
+  item.onclick = ()=>{
+    closeModalFn();
+    searchInput.value = item.dataset.acr;
+    searchInput.dispatchEvent(new Event('input'));
+  };
+});
+</script>
+</body>
+</html>
